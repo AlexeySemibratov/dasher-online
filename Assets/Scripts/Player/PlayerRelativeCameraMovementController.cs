@@ -1,6 +1,9 @@
+using Mirror;
 using UnityEngine;
 
-public class PlayerRelativeCameraMovementController : MonoBehaviour
+[RequireComponent(typeof(CharacterController))]
+[RequireComponent(typeof(PlayerCamera))]
+public class PlayerRelativeCameraMovementController : NetworkBehaviour
 {
     [SerializeField]
     private float _movementSpeed = 2.0f;
@@ -8,19 +11,23 @@ public class PlayerRelativeCameraMovementController : MonoBehaviour
     [SerializeField]
     private float _rotationSpeed = 360.0f;
 
-    [SerializeField]
-    private Transform _cameraTransform;
+    private PlayerCamera _playerCamera;
+    private Transform _cameraTransform => _playerCamera.GetMainCameraTransform();
 
     private CharacterController _characterController;
 
     private void Awake()
     {
         _characterController = GetComponent<CharacterController>();
+        _playerCamera = GetComponent<PlayerCamera>();
     }
 
 
     void Update()
     {
+        if (!isLocalPlayer)
+            return;
+
         HandleMovementInput();
     }
 
