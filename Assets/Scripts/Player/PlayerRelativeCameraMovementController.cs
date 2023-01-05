@@ -5,6 +5,8 @@ using UnityEngine;
 [RequireComponent(typeof(PlayerCamera))]
 public class PlayerRelativeCameraMovementController : NetworkBehaviour
 {
+    private const float DefaultImpulseMultiplier = 1.0f;
+
     [SerializeField]
     private float _movementSpeed = 2.0f;
 
@@ -16,22 +18,67 @@ public class PlayerRelativeCameraMovementController : NetworkBehaviour
 
     private CharacterController _characterController;
 
+    private Vector3 _movementDirection = Vector3.zero;
+
+    private float _impulseMultiplier = DefaultImpulseMultiplier;
+
+    private bool _impulseActive = false;
+
+    public bool CanApplyImpulse()
+    {
+        return _movementDirection != Vector3.zero && _impulseActive == false;
+    }
+
+    public void ApplyImpulse(float value)
+    {
+        if (CanApplyImpulse() == false)
+            return;
+
+        ActivateImpulse(value);
+    }
+
+    public void ResetImpulse()
+    {
+        if (_impulseActive == false)
+            return;
+
+        ResetImpulseInternal();
+    }
+
+    public bool IsImpulseActive() => _impulseActive;
+
+    public override void OnStartLocalPlayer()
+    {
+        _characterController.enabled = true;
+    }
+
     private void Awake()
     {
         _characterController = GetComponent<CharacterController>();
+        _characterController.enabled = false;
         _playerCamera = GetComponent<PlayerCamera>();
     }
 
-
-    void Update()
+    private void Update()
     {
-        if (!isLocalPlayer)
+        if (IsClientController() == false || _impulseActive)
             return;
 
-        HandleMovementInput();
+        ReadMovementInput();
     }
 
-    private void HandleMovementInput()
+    private void FixedUpdate()
+    {
+        if (IsClientController() == false)
+            return;
+
+        Move(_movementDirection);
+        Rotate(_movementDirection);
+    }
+
+    private bool IsClientController() => isLocalPlayer && _characterController.enabled;
+
+    private void ReadMovementInput()
     {
         float verticalInput = Input.GetAxisRaw("Vertical");
         float horizontalInput = Input.GetAxisRaw("Horizontal");
@@ -39,30 +86,39 @@ public class PlayerRelativeCameraMovementController : NetworkBehaviour
         Vector3 movementDirection = new Vector3(horizontalInput, 0, verticalInput).normalized;
 
         if (movementDirection.magnitude == 0)
+        {
+            _movementDirection = Vector3.zero;
+            return;
+        }
+
+        _movementDirection = Quaternion.AngleAxis(_cameraTransform.rotation.eulerAngles.y, Vector3.up) * movementDirection;
+    }
+
+    private void Move(Vector3 direction)
+    {
+        float speedMultiplier = _movementSpeed * _impulseMultiplier;
+        _characterController.Move(speedMultiplier * Time.fixedDeltaTime * direction);
+    }
+
+    private void Rotate(Vector3 direction)
+    {
+        if (direction == Vector3.zero)
             return;
 
-        movementDirection = Quaternion.AngleAxis(_cameraTransform.rotation.eulerAngles.y, Vector3.up) * movementDirection;
+        Quaternion toRotation = Quaternion.LookRotation(direction, Vector3.up);
 
-        RotateTarget(movementDirection);
-        _characterController.Move(movementDirection * _movementSpeed * Time.deltaTime);
+        transform.rotation = Quaternion.RotateTowards(transform.rotation, toRotation, _rotationSpeed * Time.fixedDeltaTime);
     }
 
-    private void RotateTarget(Vector3 movementDirection)
+    private void ActivateImpulse(float value)
     {
-        Quaternion toRotation = Quaternion.LookRotation(movementDirection, Vector3.up);
-
-        transform.rotation = Quaternion.RotateTowards(transform.rotation, toRotation, _rotationSpeed * Time.deltaTime);
+        _impulseMultiplier = value;
+        _impulseActive = true;
     }
 
-    private void OnApplicationFocus(bool focus)
+    private void ResetImpulseInternal()
     {
-        if (focus)
-        {
-            Cursor.lockState = CursorLockMode.Locked;
-        }
-        else
-        {
-            Cursor.lockState = CursorLockMode.None;
-        }
+        _impulseMultiplier = DefaultImpulseMultiplier;
+        _impulseActive = false;
     }
 }
