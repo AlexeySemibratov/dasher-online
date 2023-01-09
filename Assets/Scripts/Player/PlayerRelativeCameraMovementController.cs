@@ -80,9 +80,10 @@ public class PlayerRelativeCameraMovementController : NetworkBehaviour
     private void Awake()
     {
         _characterController = GetComponent<CharacterController>();
+        _characterController.detectCollisions = false;
+
         _playerCamera = GetComponent<PlayerCamera>();
         _networkTransform = GetComponent<NetworkTransform>();
-        _characterController.enabled = false;
     }
 
     private void Update()
