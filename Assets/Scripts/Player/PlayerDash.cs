@@ -7,8 +7,7 @@ public class PlayerDash : NetworkBehaviour
 {
     public bool IsDashActive => _dashActive;
 
-    [SerializeField]
-    private KeyCode _dashKeyCode = KeyCode.Space;
+    private const int MouseButtonLMB = 0;
 
     [SerializeField]
     private float _dashForce = 3.0f;
@@ -36,7 +35,7 @@ public class PlayerDash : NetworkBehaviour
 
     private void ReadDashInput()
     {
-        if (Input.GetKeyDown(_dashKeyCode))
+        if (Input.GetMouseButtonDown(MouseButtonLMB))
         {
             ActivateDash();
         }
@@ -44,6 +43,9 @@ public class PlayerDash : NetworkBehaviour
     
     private void ActivateDash()
     {
+        if (_dashActive)
+            return;
+
         _movementController.ApplyImpulse(_dashForce);
 
         StartCoroutine(ResetDash(_dashDuration));

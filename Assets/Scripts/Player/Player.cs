@@ -85,7 +85,7 @@ public class Player : NetworkBehaviour
         _movementController = GetComponent<PlayerRelativeCameraMovementController>();
     }
 
-    [ServerCallback]
+    [ClientCallback]
     private void OnTriggerEnter(Collider other)
     {
         if (other.TryGetComponent(out Player player))
@@ -94,28 +94,13 @@ public class Player : NetworkBehaviour
         }
     }
 
+    [Command]
     private void HitTarget(Player target)
     {
         if (_dash.IsDashActive && target.IsInvinsible() == false)
         {
             target.TakeHit();
             _score.IncrementScore();
-        }
-    }
-
-    [ClientCallback]
-    private void OnApplicationFocus(bool focus)
-    {
-        if (!isLocalPlayer)
-            return;
-
-        if (focus)
-        {
-            Cursor.lockState = CursorLockMode.Locked;
-        }
-        else
-        {
-            Cursor.lockState = CursorLockMode.None;
         }
     }
 }

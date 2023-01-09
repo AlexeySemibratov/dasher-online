@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 896424100021891626}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: CameraTarget
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -53,7 +53,8 @@ GameObject:
   - component: {fileID: 5327625437523089449}
   - component: {fileID: 912338788917978201}
   - component: {fileID: 9072583779318954243}
-  m_Layer: 0
+  - component: {fileID: 5807949456765255756}
+  m_Layer: 6
   m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -142,9 +143,8 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0.1
-  _dashKeyCode: 32
-  _dashForce: 4
-  _dashDuration: 0.5
+  _dashForce: 6
+  _dashDuration: 0.35
 --- !u!114 &4249735629759275010
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -320,6 +320,21 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &5807949456765255756
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 896424100366830604}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e261f23548147b146bf9c0c83792b396, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0.1
 --- !u!1 &896424100824671467
 GameObject:
   m_ObjectHideFlags: 0
@@ -331,7 +346,7 @@ GameObject:
   - component: {fileID: 896424100824671468}
   - component: {fileID: 896424100824671470}
   - component: {fileID: 896424100824671469}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Head
   m_TagString: Untagged
   m_Icon: {fileID: 0}
