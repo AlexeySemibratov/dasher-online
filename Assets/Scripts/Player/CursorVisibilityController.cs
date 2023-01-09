@@ -33,6 +33,6 @@ public class CursorVisibilityController : NetworkBehaviour
 
     private void LockCursor()
     {
-        Cursor.lockState = CursorLockMode.Locked; ;
+        Cursor.lockState = CursorLockMode.Locked;
     }
 }
