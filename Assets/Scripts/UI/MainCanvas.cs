@@ -5,12 +5,16 @@ public class MainCanvas : MonoBehaviour
     public static MainCanvas Instance { get; private set; }
 
     public static PlayerScoreboardView Scoreboard => Instance.GetScoreboard();
+    public static WinnerPanelView WinnerPanel => Instance.GetWinnerPanel();
 
     [SerializeField]
     private GameObject _rootView;
 
     [SerializeField]
     private PlayerScoreboardView _scoreboardView;
+
+    [SerializeField]
+    private WinnerPanelView _winnerPanel;
 
     public void Activate()
     {
@@ -23,6 +27,7 @@ public class MainCanvas : MonoBehaviour
     }
 
     public PlayerScoreboardView GetScoreboard() => _scoreboardView;
+    public WinnerPanelView GetWinnerPanel() => _winnerPanel;
 
     private void Awake()
     {

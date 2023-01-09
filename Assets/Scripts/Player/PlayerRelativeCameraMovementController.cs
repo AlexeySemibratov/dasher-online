@@ -3,6 +3,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(CharacterController))]
 [RequireComponent(typeof(PlayerCamera))]
+[RequireComponent(typeof(NetworkTransform))]
 public class PlayerRelativeCameraMovementController : NetworkBehaviour
 {
     private const float DefaultImpulseMultiplier = 1.0f;
@@ -15,14 +16,38 @@ public class PlayerRelativeCameraMovementController : NetworkBehaviour
 
     private PlayerCamera _playerCamera;
     private Transform _cameraTransform => _playerCamera.GetMainCameraTransform();
-
     private CharacterController _characterController;
+    private NetworkTransform _networkTransform;
 
     private Vector3 _movementDirection = Vector3.zero;
 
     private float _impulseMultiplier = DefaultImpulseMultiplier;
 
     private bool _impulseActive = false;
+
+    [ClientRpc]
+    public void RpcEnable()
+    {
+        if (isLocalPlayer)
+        {
+            _characterController.enabled = true;
+        }
+    }
+
+    [ClientRpc]
+    public void RpcDisable()
+    {
+        if (isLocalPlayer)
+        {
+            _characterController.enabled = false;
+        }
+    }
+
+    [Server]
+    public void Teleport(Vector3 destination)
+    {
+        _networkTransform.RpcTeleport(destination);
+    }
 
     public bool CanApplyImpulse()
     {
@@ -55,8 +80,9 @@ public class PlayerRelativeCameraMovementController : NetworkBehaviour
     private void Awake()
     {
         _characterController = GetComponent<CharacterController>();
-        _characterController.enabled = false;
         _playerCamera = GetComponent<PlayerCamera>();
+        _networkTransform = GetComponent<NetworkTransform>();
+        _characterController.enabled = false;
     }
 
     private void Update()

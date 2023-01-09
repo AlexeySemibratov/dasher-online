@@ -10,6 +10,13 @@ public class PlayerScore : NetworkBehaviour
     [SyncVar(hook = nameof(OnScoreChanged))]
     private int score = 0;
 
+    [Server]
+    public void Reset()
+    {
+        score = 0;
+    }
+
+    [Server]
     public void IncrementScore()
     {
         score++;
