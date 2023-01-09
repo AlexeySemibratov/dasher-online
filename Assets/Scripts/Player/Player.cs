@@ -4,11 +4,18 @@ using UnityEngine;
 [RequireComponent(typeof(PlayerScore))]
 [RequireComponent(typeof(PlayerHealth))]
 [RequireComponent(typeof(PlayerDash))]
+[RequireComponent(typeof(PlayerRelativeCameraMovementController))]
 public class Player : NetworkBehaviour
 {
+    // Unique player name
+    public string PlayerName => _name;
+
+    public PlayerScore PlayerScore => _score;
+
     private PlayerScore _score;
     private PlayerHealth _health;
     private PlayerDash _dash;
+    private PlayerRelativeCameraMovementController _movementController;
 
     [SyncVar]
     private string _name;
@@ -24,9 +31,28 @@ public class Player : NetworkBehaviour
         return _health.IsInvinsible;
     }
 
+    [Server]
     public void TakeHit()
     {
         _health.Hit();
+    }
+
+    [Server]
+    public void Teleport(Vector3 destination)
+    {
+        _movementController.Teleport(destination);
+    }
+
+    [Server]
+    public void EnableMovement()
+    {
+        _movementController.RpcEnable();
+    }
+
+    [Server]
+    public void DisableMovement()
+    {
+        _movementController.RpcDisable();
     }
 
     public override void OnStartClient()
@@ -56,6 +82,7 @@ public class Player : NetworkBehaviour
         _score = GetComponent<PlayerScore>();
         _health = GetComponent<PlayerHealth>();
         _dash = GetComponent<PlayerDash>();
+        _movementController = GetComponent<PlayerRelativeCameraMovementController>();
     }
 
     [ServerCallback]
@@ -82,7 +109,6 @@ public class Player : NetworkBehaviour
         if (!isLocalPlayer)
             return;
 
-        return; // TODO FIX
         if (focus)
         {
             Cursor.lockState = CursorLockMode.Locked;
